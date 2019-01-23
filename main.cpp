@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 class Factory
 {
 	class Link
@@ -23,11 +22,10 @@ class Factory
 		{
 			nbCyborgNeeded = 0;
 			value = -1;
-			if (source != NULL && source->troopNb > factory->troopNb && factory->state != 1)
+			if (source != NULL && source->troopNb > factory->troopNb && factory->state != 1 && factory->troopNb > -1)
 			{
 				nbCyborgNeeded = factory->troopNb + 1;
 				value = (factory->production / (float)nbCyborgNeeded) * (float)((factory->state == -1) ? 2 : 1);
-				
 			 //   cerr << value  << endl;
 			}
 		}
@@ -42,7 +40,7 @@ class Factory
 	int production;
 	int id;
 	
-	int factoryBestCible = -1;
+	Factory *factoryBestCible = NULL;
 	int nbCyborgNeeded = 0;
 	float valueOfMove = -1;
 	
@@ -57,7 +55,7 @@ class Factory
 	void searchBestMove()
 	{
 	    
-		factoryBestCible = -1;
+		factoryBestCible = NULL;
 		nbCyborgNeeded = 0;
 		valueOfMove = -1;
 
@@ -70,8 +68,13 @@ class Factory
 			if (link[i].value > valueOfMove)
 			{
 				valueOfMove = link[i].value;
-				factoryBestCible = link[i].factory->id;
+				factoryBestCible = link[i].factory;
 				nbCyborgNeeded = link[i].nbCyborgNeeded;
+			}
+			if (valueOfMove > 0)
+			{
+                
+			    cout << ";" << "MOVE " << to_string(id) << " " << to_string(factoryBestCible->id) << " " << to_string(nbCyborgNeeded);
 			}
 		}
 	}
@@ -126,10 +129,15 @@ int main()
 				factory[entityId].state = arg1;
 				factory[entityId].troopNb = arg2;
 				factory[entityId].production = arg3;
-				
-				
+			}
+			
+			if (entityType == "TROOP")
+			{
+			    factory[arg3].troopNb += arg4 * ((factory[arg3].state) ? arg1 * factory[arg3].state : 1);
 			}
 		}
+		
+		cout << "WAIT";
 
 
 		int factorySource = -1;
@@ -141,18 +149,15 @@ int main()
 		{
 			factory[i].searchBestMove();
 // 			cerr << factory[i].valueOfMove  << endl;
-			if (factory[i].valueOfMove > valueOfBestMove)
-			{
-				valueOfBestMove = factory[i].valueOfMove;
-				factorySource = i;
-				factoryCible = factory[i].factoryBestCible;
-				nbCyborg = factory[i].nbCyborgNeeded;
-			}
+// 			if (factory[i].valueOfMove > valueOfBestMove)
+// 			{
+// 				valueOfBestMove = factory[i].valueOfMove;
+// 				factorySource = i;
+// 				factoryCible = factory[i].factoryBestCible;
+// 				nbCyborg = factory[i].nbCyborgNeeded;
+// 			}
 		}
 
-		if (factorySource == -1 || factoryCible == -1)
-			cout << "WAIT" << endl;
-		else
-			cout << "MOVE " << to_string(factorySource) << " " << to_string(factoryCible) << " " << to_string(nbCyborg) << endl;
+        cout << endl;
 	}
 }
